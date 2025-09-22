@@ -21,13 +21,13 @@ enum Direction {
 	TopLeft,
 }
 
-const DirectionSize = Object.keys(Direction).length / 2;
+export type Board = Cell[][];
 
 export default class Engine {
-	private static maxRows = 6;
-	private static maxCols = 7;
+	static readonly maxRows = 6;
+	static readonly maxCols = 7;
 
-	board: Cell[][];
+	board: Board;
 	currentPlayer: Player;
 	turn: number = 0;
 
@@ -42,24 +42,35 @@ export default class Engine {
 		[Direction.TopLeft, [-1, -1]],
 	]);
 
-	constructor() {
-		this.currentPlayer = Math.round(Math.random());
-		this.generateBoard();
+	constructor();
+	constructor(board: Board, player: Player, turn: number);
+
+	constructor(board?: Board, player?: Player, turn?: number) {
+		if (board == null && player == null) {
+			this.currentPlayer = Math.round(Math.random());
+			this.board = this.generateBoard();
+		} else {
+			this.currentPlayer = player!;
+			this.board = board!;
+			this.turn = turn ?? 0;
+		}
 	}
 
-	private generateBoard(): void {
-		this.board = Array.from({ length: Engine.maxRows }, () =>
+	private generateBoard(): Board {
+		const board = Array.from({ length: Engine.maxRows }, () =>
 			Array(Engine.maxCols).fill(null),
 		);
 		for (let i = 0; i < Engine.maxRows; i++) {
 			for (let j = 0; j < Engine.maxCols; j++) {
-				this.board[i][j] = {
+				board[i][j] = {
 					col: j,
 					row: i,
 					color: null,
 				};
 			}
 		}
+
+		return board;
 	}
 
 	setPiece(column: number, player: Player): Cell | null {
