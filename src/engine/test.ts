@@ -1,4 +1,4 @@
-import Engine, { Player } from "./engine";
+import Engine, { Player } from ".";
 
 const engine = new Engine();
 
