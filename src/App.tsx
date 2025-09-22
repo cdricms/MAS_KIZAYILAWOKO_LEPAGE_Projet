@@ -10,9 +10,10 @@ function App() {
 		winner: Player | null;
 		isDraw: boolean;
 	}>({ winner: null, isDraw: false });
+	const [hoveredColumn, setHoveredColumn] = useState<number | null>(null);
 
 	const handleColumnClick = (col: number) => {
-		if (gameState.winner || gameState.isDraw) return;
+		if (gameState.winner !== null || gameState.isDraw) return;
 
 		const cell = engine.setPiece(col, engine.currentPlayer);
 		if (cell) {
@@ -41,6 +42,17 @@ function App() {
 	const handleReset = () => {
 		setEngine(new Engine());
 		setGameState({ winner: null, isDraw: false });
+		setHoveredColumn(null);
+	};
+
+	const handleMouseEnter = (col: number) => {
+		if (!gameState.winner && !gameState.isDraw) {
+			setHoveredColumn(col);
+		}
+	};
+
+	const handleMouseLeave = () => {
+		setHoveredColumn(null);
 	};
 
 	return (
@@ -87,34 +99,59 @@ function App() {
 							</Alert>
 						)}
 					</div>
-					<div className="grid grid-cols-7 gap-2">
-						{Array.from({ length: Engine.maxCols }, (_, col) => (
-							<Button
-								key={col}
-								onClick={() => handleColumnClick(col)}
-								disabled={
-									gameState.winner !== null ||
-									gameState.isDraw
-								}
-								className="w-full h-10 bg-blue-500 hover:bg-blue-600"
-							>
-								Drop
-							</Button>
-						))}
-						{engine.board.map((row, rowIndex) =>
-							row.map((cell, colIndex) => (
-								<div
-									key={`${rowIndex}-${colIndex}`}
-									className={`w-12 h-12 rounded-full border border-gray-300 flex items-center justify-center ${
-										cell.color === Player.Red
-											? "bg-red-500"
-											: cell.color === Player.Yellow
-												? "bg-yellow-500"
-												: "bg-white"
-									}`}
-								></div>
-							)),
-						)}
+					<div className="relative">
+						<div className="grid grid-cols-7 gap-2">
+							{Array.from(
+								{ length: Engine.maxCols },
+								(_, col) => (
+									<div
+										key={col}
+										className="relative"
+										onMouseEnter={() =>
+											handleMouseEnter(col)
+										}
+										onMouseLeave={handleMouseLeave}
+										onClick={() => handleColumnClick(col)}
+									>
+										{hoveredColumn === col &&
+											!(
+												gameState.winner ||
+												gameState.isDraw
+											) && (
+												<div
+													className={`absolute top-[-2.5rem] left-1/2 transform -translate-x-1/2 w-10 h-10 rounded-full border border-gray-300 ${
+														engine.currentPlayer ===
+														Player.Red
+															? "bg-red-500"
+															: "bg-yellow-500"
+													}`}
+												></div>
+											)}
+									</div>
+								),
+							)}
+							{engine.board.map((row, rowIndex) =>
+								row.map((cell, colIndex) => (
+									<div
+										key={`${rowIndex}-${colIndex}`}
+										className={`w-12 h-12 rounded-full border border-gray-300 flex items-center justify-center ${
+											cell.color === Player.Red
+												? "bg-red-500"
+												: cell.color === Player.Yellow
+													? "bg-yellow-500"
+													: "bg-white"
+										}`}
+										onMouseEnter={() =>
+											handleMouseEnter(colIndex)
+										}
+										onMouseLeave={handleMouseLeave}
+										onClick={() =>
+											handleColumnClick(colIndex)
+										}
+									></div>
+								)),
+							)}
+						</div>
 					</div>
 					<div className="mt-4 text-center">
 						<Button onClick={handleReset} variant="outline">
