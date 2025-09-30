@@ -107,6 +107,7 @@ function App() {
 									<div
 										key={col}
 										className="relative"
+										data-testid={`header-${col}`}
 										onMouseEnter={() =>
 											handleMouseEnter(col)
 										}
@@ -134,6 +135,7 @@ function App() {
 								row.map((cell, colIndex) => (
 									<div
 										key={`${rowIndex}-${colIndex}`}
+										data-testid={`cell-${rowIndex}-${colIndex}`}
 										className={`w-12 h-12 rounded-full border border-gray-300 flex items-center justify-center ${
 											cell.color === Player.Red
 												? "bg-red-500"
