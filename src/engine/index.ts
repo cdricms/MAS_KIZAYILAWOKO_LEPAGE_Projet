@@ -1,15 +1,17 @@
+// Enum for player colors
 export enum Player {
 	Red,
 	Yellow,
 }
 
+// Interface for a cell on the board
 export interface Cell {
 	color: Player | null;
-
 	row: number;
 	col: number;
 }
 
+// Enum for directions to check connections
 enum Direction {
 	Top,
 	TopRight,
@@ -21,9 +23,11 @@ enum Direction {
 	TopLeft,
 }
 
+// Type alias for 2D board array
 export type Board = Cell[][];
 
 export default class Engine {
+	// Board dimensions
 	static readonly maxRows = 6;
 	static readonly maxCols = 7;
 
@@ -31,6 +35,7 @@ export default class Engine {
 	currentPlayer: Player;
 	turn: number = 0;
 
+	// Maps directions to row/col offsets for win checking
 	static directionsMap = new Map<Direction, [number, number]>([
 		[Direction.Top, [-1, 0]],
 		[Direction.TopRight, [-1, 1]],
@@ -42,12 +47,12 @@ export default class Engine {
 		[Direction.TopLeft, [-1, -1]],
 	]);
 
+	// Constructor: Initializes new game or restores from given state
 	constructor();
 	constructor(board: Board, player: Player, turn: number);
-
 	constructor(board?: Board, player?: Player, turn?: number) {
 		if (board == null && player == null) {
-			this.currentPlayer = Math.round(Math.random());
+			this.currentPlayer = Math.round(Math.random()); // Randomly select starting player
 			this.board = this.generateBoard();
 		} else {
 			this.currentPlayer = player!;
@@ -56,6 +61,7 @@ export default class Engine {
 		}
 	}
 
+	// Creates an empty board with null cells
 	private generateBoard(): Board {
 		const board = Array.from({ length: Engine.maxRows }, () =>
 			Array(Engine.maxCols).fill(null),
@@ -69,15 +75,16 @@ export default class Engine {
 				};
 			}
 		}
-
 		return board;
 	}
 
+	// Places a piece in the specified column, returning the placed cell or null if invalid
 	setPiece(column: number, player: Player): Cell | null {
 		if (column < 0 || column >= Engine.maxCols) {
-			return null;
+			return null; // Invalid column
 		}
 
+		// Start from bottom row, find first empty cell
 		for (let row = Engine.maxRows - 1; row >= 0; row--) {
 			const currentCell = this.board[row][column];
 			if (currentCell.color === null) {
@@ -85,13 +92,14 @@ export default class Engine {
 				return currentCell;
 			}
 		}
-
-		return null;
+		return null; // Column is full
 	}
 
+	// Checks if the placed cell results in a win (4 connected pieces)
 	checkWin(cell: Cell): boolean {
 		if (cell.color === null) return false;
 
+		// Pairs of opposite directions to check for connections
 		const directionsToCheck: [Direction, Direction][] = [
 			[Direction.Left, Direction.Right],
 			[Direction.Top, Direction.Bottom],
@@ -100,8 +108,9 @@ export default class Engine {
 		];
 
 		for (const [dir1, dir2] of directionsToCheck) {
-			let counter = 1;
+			let counter = 1; // Count the starting cell
 
+			// Check in first direction
 			let nextRow = cell.row;
 			let nextCol = cell.col;
 			let direction = Engine.directionsMap.get(dir1);
@@ -119,6 +128,7 @@ export default class Engine {
 				}
 			}
 
+			// Check in opposite direction
 			nextRow = cell.row;
 			nextCol = cell.col;
 			direction = Engine.directionsMap.get(dir2);
@@ -137,13 +147,13 @@ export default class Engine {
 			}
 
 			if (counter >= 4) {
-				return true;
+				return true; // Found 4 connected pieces
 			}
 		}
-
 		return false;
 	}
 
+	// Validates if coordinates are within board bounds
 	private checkBounds(row: number, col: number) {
 		return (
 			row >= 0 && row < Engine.maxRows && col >= 0 && col < Engine.maxCols

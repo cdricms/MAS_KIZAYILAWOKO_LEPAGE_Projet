@@ -1,10 +1,11 @@
 import { useState } from "react";
 import Engine, { Player } from "./engine";
 import { Button } from "./components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "./components/ui/card";
-import { Alert, AlertDescription, AlertTitle } from "./components/ui/alert";
+import { Card, CardHeader, CardTitle, CardContent } from "./components/ui/card";
+import { Alert, AlertTitle, AlertDescription } from "./components/ui/alert";
 
 function App() {
+	// Game engine and state management
 	const [engine, setEngine] = useState(new Engine());
 	const [gameState, setGameState] = useState<{
 		winner: Player | null;
@@ -12,8 +13,9 @@ function App() {
 	}>({ winner: null, isDraw: false });
 	const [hoveredColumn, setHoveredColumn] = useState<number | null>(null);
 
+	// Handles column click to place a piece
 	const handleColumnClick = (col: number) => {
-		if (gameState.winner !== null || gameState.isDraw) return;
+		if (gameState.winner !== null || gameState.isDraw) return; // Ignore if game is over
 
 		const cell = engine.setPiece(col, engine.currentPlayer);
 		if (cell) {
@@ -26,6 +28,7 @@ function App() {
 			});
 
 			if (!hasWon && !isDraw) {
+				// Switch player and increment turn
 				engine.currentPlayer =
 					engine.currentPlayer === Player.Red
 						? Player.Yellow
@@ -33,18 +36,21 @@ function App() {
 				engine.turn++;
 			}
 
+			// Update engine with new state
 			setEngine(
 				new Engine(engine.board, engine.currentPlayer, engine.turn),
 			);
 		}
 	};
 
+	// Resets game to initial state
 	const handleReset = () => {
 		setEngine(new Engine());
 		setGameState({ winner: null, isDraw: false });
 		setHoveredColumn(null);
 	};
 
+	// Tracks column hover for preview
 	const handleMouseEnter = (col: number) => {
 		if (!gameState.winner && !gameState.isDraw) {
 			setHoveredColumn(col);
@@ -65,6 +71,7 @@ function App() {
 				</CardHeader>
 				<CardContent>
 					<div className="mb-4 text-center">
+						{/* Display current player */}
 						<p className="text-lg">
 							Current Player:{" "}
 							<span
@@ -79,6 +86,7 @@ function App() {
 									: "Yellow"}
 							</span>
 						</p>
+						{/* Display game result */}
 						{gameState.winner !== null && (
 							<Alert className="mt-4">
 								<AlertTitle>Game Over!</AlertTitle>
@@ -101,6 +109,7 @@ function App() {
 					</div>
 					<div className="relative">
 						<div className="grid grid-cols-7 gap-2">
+							{/* Column headers with hover preview */}
 							{Array.from(
 								{ length: Engine.maxCols },
 								(_, col) => (
@@ -131,6 +140,7 @@ function App() {
 									</div>
 								),
 							)}
+							{/* Board grid */}
 							{engine.board.map((row, rowIndex) =>
 								row.map((cell, colIndex) => (
 									<div
