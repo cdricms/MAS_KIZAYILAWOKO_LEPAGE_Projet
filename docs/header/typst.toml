@@ -1,0 +1,10 @@
+[package]
+name = "my-header-package"
+version = "0.1.0"
+entrypoint = "lib.typ"
+authors = ["Your Name"]
+license = "MIT"
+description = "A simple Typst package for creating a custom header with title, subtitle, authors, and date."
+
+[dependencies]
+datify = { version = "1.0.0", source = "preview" }
